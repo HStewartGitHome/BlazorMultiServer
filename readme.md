@@ -1,4 +1,4 @@
-Blazor Schools Readme
+Blazor Multi Server Readme
 
 Stewart Hyde
 
@@ -15,18 +15,18 @@ the client could cause two servers.
 Steps I use to create the project
 =================================
 
-1. Build Sample Blazor WebAssembly App with ASP.Core Hoot on
+1.  Build Sample Blazor WebAssembly App with ASP.Core Hoot on
 
-2. Add simple API request and page for testing purposes
+2.  Add simple API request and page for testing purposes
 
-3. Clone Server component for new Server with different ports
+3.  Clone Server component for new Server with different ports
 
-4. Update clone so it is different and update client to call it
+4.  Update clone so it is different and update client to call it
 
-5. Separate the Passthrough server calls from Client calls because of client
-issue
+5.  Separate the Passthrough server calls from Client calls because of client
+    issue
 
-6. Add External Json API as part of the test for Passthrough
+6.  Add External Json API as part of the test for Passthrough
 
 Technical Issue with Calling another Service though client
 ==========================================================
@@ -41,3 +41,11 @@ simple API server is part of clone ASP.Net Core. I create a Stack overflow
 question concerning this problem
 
 <https://stackoverflow.com/questions/62313078/httpclientfactory-and-webassembly-net-core-hosted-crashes-on-on-client>
+
+The simple way to recreate this is issue is created with a Blazor Webassembly
+App and make sure that ASP.NET Core Hosted option is selected. Once the project
+is created, create a page in client that that shows json from any external json
+API. Note this works fine in the ASP.NET Core controller.
+
+My thought it something to do with Webassembly code where it only allows one
+connection to ASP.NET Core Host.
