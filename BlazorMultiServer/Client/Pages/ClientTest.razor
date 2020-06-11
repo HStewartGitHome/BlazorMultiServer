@@ -1,0 +1,151 @@
+﻿@page "/clienttest"
+@using BlazorMultiServer.Shared
+@inject HttpClient Http
+
+<h1>Server Test (Client) Request</h1>
+
+<p>This component demonstrates fetching data from the server(s) but from the client.</p>
+
+
+<h3>@Status</h3>
+
+@if ((normalData == null) || (backupData == null) || (redundantData == null))
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Server</th>
+                <th>Client</th>
+                <th>Server</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Normal Server</td>
+                <td>@normalData.ClientMessage</td>
+                <td>@normalData.ServerMessage</td>
+                <td>@normalData.ActionMessage</td>
+            </tr>
+            <tr>
+                <td>Backup Server</td>
+                <td>@backupData.ClientMessage</td>
+                <td>@backupData.ServerMessage</td>
+                <td>@backupData.ActionMessage</td>
+            </tr>
+            <tr>
+                <td>Redundant Server</td>
+                <td>@redundantData.ClientMessage</td>
+                <td>@redundantData.ServerMessage</td>
+                <td>@redundantData.ActionMessage</td>
+            </tr>
+        </tbody>
+    </table>
+}
+
+@code {
+    private ServerData normalData;
+    private ServerData backupData;
+    private ServerData redundantData;
+
+    public string Status { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // initialize normal client
+        Status = "Started";
+        normalData = await InitializeNormalClient();
+        if (normalData == null)
+        {
+            Status = "Normal is null";
+            normalData = new ServerData();
+            normalData.ServerMessage = "Primary Server is down";
+            normalData.ActionMessage = "offline primary server is down";
+        }
+        backupData = await InitializeBackupClient();
+        redundantData = await InitializeReduntantClient();
+    }
+
+    private async Task<ServerData> InitializeNormalClient()
+    {
+        ServerData Data = null;
+        try
+        {
+            Status = "Doing Normal Server";
+            Data = await Http.GetFromJsonAsync<ServerData>("ServerData");
+            if (Data != null)
+                Status = "Normal Server return data";
+        }
+        catch (Exception e)
+        {
+            Status = "Exception loading Primary Server client" + e.ToString();
+            Console.Write("Exception loading Primary Server client", e);
+        }
+        if (Data != null)
+            Data.ClientMessage = "Called to Normal Blazor Call from Normal Client";
+        return Data;
+    }
+
+
+    private async Task<ServerData> InitializeBackupClient()
+    {
+        ServerData Data = await GetBackupData();
+        if (Data != null)
+            Status = "Backup Server return data";
+
+        return Data;
+    }
+
+    public async Task<ServerData> GetBackupData()
+    {
+        ServerData Data = null;
+
+
+        try
+        {
+            // these calls fail and never return data
+            string strUri = "https://localhost:5003/";
+
+
+            BackupClient client = new BackupClient();
+
+            Data = await client.GetBackupData(strUri);
+        }
+        catch (Exception e)
+        {
+            Console.Write("Exception loading Backup Server client", e);
+        }
+        finally
+        {
+            Console.Write("Finally");
+        }
+
+        return Data;
+    }
+
+
+    private async Task<ServerData> InitializeReduntantClient()
+    {
+        string clientMessage = "Redundant Server call first normal then backup";
+        ServerData data = await InitializeNormalClient();
+        if (data == null)
+        {
+            data = await InitializeBackupClient();
+            if (data == null)
+            {
+                data = new ServerData();
+                data.ServerMessage = "Backup Server is down";
+                data.ActionMessage = "offline both servers are down";
+            }
+        }
+        data.ClientMessage = clientMessage;
+        return data;
+    }
+
+}
+
+

@@ -1,0 +1,112 @@
+﻿@page "/servertest"
+@using BlazorMultiServer.Shared
+@inject HttpClient Http
+
+<h1>Server Test Request</h1>
+
+<p>This component demonstrates fetching data from the server(s).</p>
+
+
+@if ((normalData == null) ||  (passthruData == null))
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Server</th>
+                <th>Client</th>
+                <th>Server</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Normal Server</td>
+                <td>@normalData.ClientMessage</td>
+                <td>@normalData.ServerMessage</td>
+                <td>@normalData.ActionMessage</td>
+            </tr>
+            <tr>
+                <td>Passthru Server</td>
+                <td>@passthruData.ClientMessage</td>
+                <td>@passthruData.ServerMessage</td>
+                <td>@passthruData.ActionMessage</td>
+            </tr>
+            <tr>
+                <td>Passthru Weather</td>
+                <td>@weatherData.ClientMessage</td>
+                <td>@weatherData.ServerMessage</td>
+                <td>@weatherData.ActionMessage</td>
+            </tr>
+        </tbody>
+    </table>
+}
+
+@code {
+    private ServerData normalData;
+    private ServerData passthruData;
+    private ServerData weatherData;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // initialize normal client
+        normalData = await InitializeNormalClient();
+        if ( normalData == null )
+        {
+            normalData = new ServerData();
+            normalData.ServerMessage = "Primary Server is down";
+            normalData.ActionMessage = "offline primary server is down";
+        }
+        passthruData = await InitializePassthrewClient();
+        weatherData = await InitializeWeatherPassthrewClient();
+    }
+
+    private async Task<ServerData> InitializeNormalClient()
+    {
+        ServerData Data = null;
+        try
+        {
+            Data = await Http.GetFromJsonAsync<ServerData>("ServerData");
+        }
+        catch (Exception e)
+        {
+            Console.Write("Exception loading Primary Server client", e);
+        }
+        if (Data != null)
+            Data.ClientMessage = "Called to Normal Blazor Call from Normal Client";
+        return Data;
+    }
+
+
+    private async Task<ServerData> InitializePassthrewClient()
+    {
+        ServerData Data = await Http.GetFromJsonAsync<ServerData>("Passthru");
+        if (Data != null)
+            Data.ClientMessage = "Called to Passthrough Blazor Call from Normal Client";
+        return Data;
+    }
+
+
+    private async Task<ServerData> InitializeWeatherPassthrewClient()
+    {
+        WeatherForecastModel forecast = await Http.GetFromJsonAsync<WeatherForecastModel>("Weather");
+        ServerData Data = new ServerData();
+        Data.ClientMessage = "Called to Passthrough Blazor Call for external Json from Normal Client";
+        if (forecast == null)
+        {
+            Data.ServerMessage = "Forecast is null";
+            Data.ActionMessage = "External Passthrough";
+        }
+        else
+        {
+            Data.ServerMessage = "Forecast return from external server thru Primary Service";
+            Data.ActionMessage = "External Passthrough";
+        }
+
+        return Data;
+    }
+}
+

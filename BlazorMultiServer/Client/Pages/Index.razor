@@ -1,0 +1,44 @@
+﻿@page "/"
+
+<h1>Hello, This test multiple servers</h1>
+
+This sample is designed to test connections to different server conditions 
+<p> </p>
+
+<p>___1.  Simple normal Blazor WebAssembly  ASP.Core Server </p>
+<p>___2.  Web Assembly Connected with external service connected thru ASP Server</p>
+<p>___3.  Web Assembly Connected with clone ASP Server connected thru ASP Server</p>
+<p> </p>
+<p>These unfortunately have technical issues with WebAssembly not able to connected to other API's</p>
+<p> </p>
+<p>___4. Web Assembly connected to clone ASP Server though client</p>
+<p>___5. Redundant service if primary server is done go to backup</p>
+<p> </p>
+
+
+<p> The following steps were use to create this example</p>
+<p> </p>
+
+<p>___1.  Build Sample Blazor WebAssembly App with ASP.Core Hoot on </p>
+<p>___2.  Add simple API request and page for testing purposes</p>
+<p>___3.  Clone Server component for new Server with different ports</p>
+<p>___4.  Update clone so it is different and update client to call it</p>
+<p>___5.  Seperate the Passthru server calls from Client calls because of client issue</p>
+<p>___6.  Add External Json API as part of the test for Passthru</p>
+<p> </p>
+
+
+<p>
+   Technical issues with executing client. This example uses clone of ASP server
+   But running on Port 5002 and 5003. 
+</p>
+<p>
+   But when HtmlClient makes call get Json  from the server the connection
+   is refused and does not function. 
+</p>
+<p>
+   This logic is the same logic used in the Passthru logic in server and that functions.
+   The clienttest option on menu demostrates this problem.
+</p>
+
+
