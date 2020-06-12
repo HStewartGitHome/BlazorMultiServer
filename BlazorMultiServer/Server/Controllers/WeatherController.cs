@@ -34,9 +34,9 @@ namespace BlazorMultiServer.Server.Controllers
             try
             {
                 string strUri = _configuration.GetValue<string>("MetaAPI");
-                HttpClient client = new HttpClient { BaseAddress = new Uri(strUri) };
-                
-                forecast = await client.GetFromJsonAsync<WeatherForecastModel>("location/2471217/");
+               
+                WeatherClient client = new WeatherClient();
+                forecast = await client.GetWeatherData(strUri);
             }
             catch(Exception e)
             {

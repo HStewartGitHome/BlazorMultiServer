@@ -1,0 +1,29 @@
+﻿@page "/jstest"
+@using BlazorMultiServer.Shared
+@inject IJSRuntime JSRuntime
+
+<h3>Java Script Test</h3>
+
+
+@if (resultString == null)
+{
+<p><em>Loading...</em></p> }
+            else
+            {
+<p>Result string = @resultString</p>}
+
+@code { private string resultString { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+       
+        JSHelper helper = new JSHelper(JSRuntime);
+         resultString = await helper.GetDataTimeString();
+       
+
+        // the following also has issues.
+        //resultString = await JSRuntime.InvokeAsync<string>("getDateTime");
+
+    }
+
+}

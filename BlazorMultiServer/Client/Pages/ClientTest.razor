@@ -48,61 +48,61 @@ else
 }
 
 @code {
-    private ServerData normalData;
-    private ServerData backupData;
-    private ServerData redundantData;
+        private ServerData normalData;
+        private ServerData backupData;
+        private ServerData redundantData;
 
-    public string Status { get; set; }
+        public string Status { get; set; }
 
-    protected override async Task OnInitializedAsync()
-    {
-        // initialize normal client
-        Status = "Started";
-        normalData = await InitializeNormalClient();
-        if (normalData == null)
+        protected override async Task OnInitializedAsync()
         {
-            Status = "Normal is null";
-            normalData = new ServerData();
-            normalData.ServerMessage = "Primary Server is down";
-            normalData.ActionMessage = "offline primary server is down";
+            // initialize normal client
+            Status = "Started";
+            normalData = await InitializeNormalClient();
+            if (normalData == null)
+            {
+                Status = "Normal is null";
+                normalData = new ServerData();
+                normalData.ServerMessage = "Primary Server is down";
+                normalData.ActionMessage = "offline primary server is down";
+            }
+            backupData = await InitializeBackupClient();
+            redundantData = await InitializeReduntantClient();
         }
-        backupData = await InitializeBackupClient();
-        redundantData = await InitializeReduntantClient();
-    }
 
-    private async Task<ServerData> InitializeNormalClient()
-    {
-        ServerData Data = null;
-        try
+        private async Task<ServerData> InitializeNormalClient()
         {
-            Status = "Doing Normal Server";
-            Data = await Http.GetFromJsonAsync<ServerData>("ServerData");
+            ServerData Data = null;
+            try
+            {
+                Status = "Doing Normal Server";
+                Data = await Http.GetFromJsonAsync<ServerData>("ServerData");
+                if (Data != null)
+                    Status = "Normal Server return data";
+            }
+            catch (Exception e)
+            {
+                Status = "Exception loading Primary Server client" + e.ToString();
+                Console.Write("Exception loading Primary Server client", e);
+            }
             if (Data != null)
-                Status = "Normal Server return data";
+                Data.ClientMessage = "Called to Normal Blazor Call from Normal Client";
+            return Data;
         }
-        catch (Exception e)
+
+
+        private async Task<ServerData> InitializeBackupClient()
         {
-            Status = "Exception loading Primary Server client" + e.ToString();
-            Console.Write("Exception loading Primary Server client", e);
+            ServerData Data = await GetBackupData();
+            if (Data != null)
+                Status = "Backup Server return data";
+
+            return Data;
         }
-        if (Data != null)
-            Data.ClientMessage = "Called to Normal Blazor Call from Normal Client";
-        return Data;
-    }
 
-
-    private async Task<ServerData> InitializeBackupClient()
-    {
-        ServerData Data = await GetBackupData();
-        if (Data != null)
-            Status = "Backup Server return data";
-
-        return Data;
-    }
-
-    public async Task<ServerData> GetBackupData()
-    {
-        ServerData Data = null;
+        public async Task<ServerData> GetBackupData()
+        {
+            ServerData Data = null;
 
 
         try

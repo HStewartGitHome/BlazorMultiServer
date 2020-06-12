@@ -26,10 +26,12 @@ namespace BlazorMultiServer.Client
             Console.WriteLine("Main   URI = [" + uriMain + "]");
             Console.WriteLine("Backup URI = [" + uriBackup + "]");
 
-
+            builder.Logging.ClearProviders();
+            builder.Services.AddLogging(builder => builder.SetMinimumLevel(LogLevel.Information));
             builder.Services.AddTransient(sp => new HttpClient { BaseAddress = new Uri(uriMain)});
           //  builder.Services.AddTransient(sp => new BackupHttpClient(uriBackup));
 
+         
             await builder.Build().RunAsync();
         }
     }

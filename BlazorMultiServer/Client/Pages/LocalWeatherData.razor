@@ -1,0 +1,83 @@
+﻿@page "/localweather"
+@using BlazorMultiServer.Shared
+@inject HttpClient Http
+
+<h3>local Weather Data</h3>
+
+@if (string.IsNullOrWhiteSpace(errorString) == false)
+{
+<div class="h2">@errorString</div> }
+else if (forecast is null)
+{
+<div class="h4">Loading...</div> }
+else
+{
+<table class="table table-striped">
+    <thead class="thead-dark">
+        <tr>
+            <th>Date</th>
+            <th>Weather State</th>
+            <th>Low</th>
+            <th>High</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var w in forecast.Consolidated_weather)
+        {
+<tr>
+    <td>@w.applicable_date</td>
+    <td>@w.weather_state_name</td>
+    <td>@w.min_temp</td>
+    <td>@w.max_temp</td>
+</tr>}
+    </tbody>
+</table>}
+
+@code { WeatherForecastModel forecast;
+    string errorString;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        try
+        {
+            //  forecast = await Http.GetFromJsonAsync<WeatherForecastModel>("Weather");
+
+            forecast = await GetWeatherData();
+
+            errorString = null;
+        }
+        catch (Exception ex)
+        {
+            errorString = $"There was an error getting our forecast: { ex.Message }";
+        }
+    }
+    public async Task<WeatherForecastModel> GetWeatherData()
+    {
+        WeatherForecastModel Data = null;
+
+
+        try
+        {
+            // these calls fail and never return data
+            string strUri = "https://www.metaweather.com/api/";
+
+
+            WeatherClient client = new WeatherClient();
+
+            Data = await client.GetWeatherData(strUri);
+        }
+        catch (Exception e)
+        {
+            Console.Write("Exception loading weather Server client", e);
+        }
+        finally
+        {
+            Console.Write("Finally");
+        }
+
+        return Data;
+    }
+}
+
+

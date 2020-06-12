@@ -8,24 +8,24 @@ using System.Threading.Tasks;
 
 namespace BlazorMultiServer.Shared
 {
-    public class BackupClient
+    public class WeatherClient
     {
-        public async Task<ServerData> GetBackupData(string strUri)
+        public async Task<WeatherForecastModel> GetWeatherData(string strUri)
         {
-            ServerData Data = null;
+            WeatherForecastModel Data = null;
 
 
             try
             {
                 HttpClient client = new HttpClient { BaseAddress = new Uri(strUri) };
 
-                Trace.TraceInformation("Call Backup Server Client at " + strUri );
-                Data = await client.GetFromJsonAsync<ServerData>("ServerData");
+                Trace.TraceInformation("Call Weather Server Client at " + strUri );
+                Data = await client.GetFromJsonAsync<WeatherForecastModel>("location/2471217/");
             }
             catch (Exception e)
             {
-                Trace.TraceError("Exception loading Backup Server client", e);
-            } 
+                Trace.TraceError("Exception loading Weather Server client", e);
+            }
 
             return Data;
         }
